@@ -76,140 +76,16 @@ For dates and times, you have to define input formats which are taken from the a
 
 Careful with formats containing only numbers: It's very hard to produce reliable matches if you provide multiple strictly numeric formats!
 
-delocalize then overrides `to_input_field_tag` in ActionView's `InstanceTag` so you can use localized text fields:
 
-```erb
-<% form_for @product do |f| %>
-  <%= f.text_field :name %>
-  <%= f.text_field :released_on %>
-  <%= f.text_field :price %>
-<% end %>
+Un-localize parameters
+----------------------
+
+```ruby
+class ApplicationController < ActionController::Base
+  unlocalize /.*date/ => :date,
+             /.*time/ => :time, 
+             /.*amount/ => :numeric
+end
 ```
 
-In this example, a user can enter the release date and the price just like he's used to in his language, for example:
-
->  Name: "Couch"  
->  Released on: "12. Oktober 2009"  
->  Price: "2.999,90"
-
-When saved, ActiveRecord automatically converts these to a regular Ruby date and number.
-
-Edit forms then also show localized dates/numbers. By default, dates and times are localized using the format named :default in your locale file. So with the above locale file, dates would use `%d.%m.%Y` and times would use `%A, %e. %B %Y, %H:%M Uhr`. Numbers are also formatted using your locale's thousands delimiter and decimal separator.
-
-You can also customize the output using some options:
-
-  The price should always show two decimal digits and we don't need the delimiter:
-  
-```erb
-<%= f.text_field :price, :precision => 2, :delimiter => '' %>
-```
-  
-  The `released_on` date should be shown in the `:full` format:
-
-```erb
-<%= f.text_field :released_on, :format => :full %>
-```
-
-  Since `I18n.localize` supports localizing `strftime` strings, we can also do this:
-
-```erb
-<%= f.text_field :released_on, :format => "%B %Y" %>
-```
-
-### Ruby 1.9 + Psych YAML Parser
-
-You will need to adjust the localization formatting when using the new YAML parser Psych.  Below is an example error message you may receive in your logs as well as an example of acceptable formatting and helpful links for reference:
-
-__Error message from logs:__
-
-    Psych::SyntaxError (couldn't parse YAML at line x column y):
-
-__References:__
-
-The solution can be found here: http://stackoverflow.com/questions/4980877/rails-error-couldnt-parse-yaml#answer-5323060
-
-http://pivotallabs.com/users/mkocher/blog/articles/1692-yaml-psych-and-ruby-1-9-2-p180-here-there-be-dragons
-
-__Psych Preferred Formatting:__
-
-```yml
-en:
-  number:
-    format:
-      separator: '.'
-      delimiter: ','
-      precision: 2
-  date:
-    input:
-      formats:
-        - :default
-        - :long
-        - :short
-    formats:
-      default: "%m/%d/%Y"
-      short: "%b %e"
-      long: "%B %e, %Y"
-      only_day: "%e"
-    day_names:
-      - Sunday
-      - Monday
-      - Tuesday
-      - Wednesday
-      - Thursday
-      - Friday
-      - Saturday
-    abbr_day_names:
-      - Sun
-      - Mon
-      - Tue
-      - Wed
-      - Thur
-      - Fri
-      - Sat
-    month_names:
-      - ~
-      - January
-      - February
-      - March
-      - April
-      - May
-      - June
-      - July
-      - August
-      - September
-      - October
-      - November
-      - December
-    abbr_month_names:
-      - ~
-      - Jan
-      - Feb
-      - Mar
-      - Apr
-      - May
-      - Jun
-      - Jul
-      - Aug
-      - Sep
-      - Oct
-      - Nov
-      - Dec
-    order:
-      - :month
-      - :day
-      - :year
-  time:
-    input:
-      formats: 
-        - :default
-        - :long
-        - :short
-        - :time
-    formats:
-      default: "%m/%d/%Y %I:%M%p"
-      short: "%B %e %I:%M %p"
-      long: "%A, %B %e, %Y %I:%M%p"
-      time: "%l:%M%p"
-    am: "am"
-    pm: "pm"
-```
+This automatically unlocalize any parameters matching the regexps, eg:

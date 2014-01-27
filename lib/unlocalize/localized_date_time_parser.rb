@@ -3,7 +3,7 @@ require 'date'
 # TODO:
 #   * AM/PM calculation
 #   * proper documentation (comments)
-module Delocalize
+module Unlocalize
   class LocalizedDateTimeParser
     # extend/change this according to your needs by merging your custom regexps
     REGEXPS = {

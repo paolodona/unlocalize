@@ -1,6 +1,6 @@
 # TODO:
 #   * proper documentation (comments)
-module Delocalize
+module Unlocalize
   class LocalizedNumericParser
     class << self
       # Parse numbers removing unneeded characters and replacing decimal separator
