@@ -60,7 +60,7 @@ module Unlocalize
         # TODO Make it a bulk lookup again at some point in the future when the bug is fixed in i18n.
         translated = [:month_names, :abbr_month_names, :day_names, :abbr_day_names].map do |key|
           I18n.t(key, :scope => :date)
-        end.flatten.compact
+        end.flatten.compact.map { |str| str.chomp('.') }
 
         original = (Date::MONTHNAMES + Date::ABBR_MONTHNAMES + Date::DAYNAMES + Date::ABBR_DAYNAMES).compact
         translated.each_with_index { |name, i| datetime.gsub!(/\b#{name}\b/i, original[i]) }
