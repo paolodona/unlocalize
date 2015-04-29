@@ -26,7 +26,7 @@ module Unlocalize
         return unless datetime
         return datetime if datetime.respond_to?(:strftime) # already a Date/Time object -> no need to parse it
 
-        translate_month_and_day_names(datetime)
+        datetime = translate_month_and_day_names(datetime)
         input_formats(type).each do |original_format|
           next unless datetime =~ /^#{apply_regex(original_format)}$/
 
@@ -60,10 +60,14 @@ module Unlocalize
         # TODO Make it a bulk lookup again at some point in the future when the bug is fixed in i18n.
         translated = [:month_names, :abbr_month_names, :day_names, :abbr_day_names].map do |key|
           I18n.t(key, :scope => :date)
-        end.flatten.compact.map { |str| str.chomp('.') }
-
+        end.flatten.compact.map { |str| str.chomp('.').downcase }
         original = (Date::MONTHNAMES + Date::ABBR_MONTHNAMES + Date::DAYNAMES + Date::ABBR_DAYNAMES).compact
-        translated.each_with_index { |name, i| datetime.gsub!(/\b#{name}\b/i, original[i]) }
+
+        datetime = datetime.downcase.split(/\b/).map do |str|
+          idx = translated.find_index(str)
+
+          idx ? original[idx] : str
+        end.join
       end
 
       def input_formats(type)
